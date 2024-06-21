@@ -76,4 +76,4 @@ jobs:
 
       - name: Start Streamlit application
         run: |
-          sh deploy.sh
+          streamlit run main.py
