@@ -1,7 +1,3 @@
-# Docs for the Azure Web Apps Deploy action: https://github.com/Azure/webapps-deploy
-# More GitHub Actions for Azure: https://github.com/Azure/actions
-# More info on Python, GitHub Actions, and Azure App Service: https://aka.ms/python-webapps-actions
-
 name: Build and deploy Python app to Azure Web App - texttoimageaigenerator
 
 on:
@@ -28,20 +24,22 @@ jobs:
           source venv/bin/activate
       
       - name: Install dependencies
-        run: pip install -r requirements.txt
-        
+        run: |
+          source venv/bin/activate
+          pip install -r requirements.txt
+
       # Optional: Add step to run tests here (PyTest, Django test suites, etc.)
 
       - name: Zip artifact for deployment
-        run: zip release.zip ./* -r
+        run: |
+          source venv/bin/activate
+          zip -r release.zip . -x 'venv/*' '.git/*'
 
       - name: Upload artifact for deployment jobs
         uses: actions/upload-artifact@v3
         with:
           name: python-app
-          path: |
-            release.zip
-            !venv/
+          path: release.zip
 
   deploy:
     runs-on: ubuntu-latest
@@ -50,7 +48,7 @@ jobs:
       name: 'Production'
       url: ${{ steps.deploy-to-webapp.outputs.webapp-url }}
     permissions:
-      id-token: write #This is required for requesting the JWT
+      id-token: write # This is required for requesting the JWT
 
     steps:
       - name: Download artifact from build job
@@ -61,13 +59,12 @@ jobs:
       - name: Unzip artifact for deployment
         run: unzip release.zip
 
-      
       - name: Login to Azure
         uses: azure/login@v1
         with:
-          client-id: ${{ secrets.AZUREAPPSERVICE_CLIENTID_81AE163C6B894F88990CF271D44AB5CB }}
-          tenant-id: ${{ secrets.AZUREAPPSERVICE_TENANTID_886ECEE86D294573BEBFA97C473EC0F5 }}
-          subscription-id: ${{ secrets.AZUREAPPSERVICE_SUBSCRIPTIONID_3D46492DF26B44789195AD7F25B9BDAE }}
+          client-id: ${{ secrets.AZUREAPPSERVICE_CLIENTID }}
+          tenant-id: ${{ secrets.AZUREAPPSERVICE_TENANTID }}
+          subscription-id: ${{ secrets.AZUREAPPSERVICE_SUBSCRIPTIONID }}
 
       - name: 'Deploy to Azure Web App'
         uses: azure/webapps-deploy@v2
@@ -75,4 +72,16 @@ jobs:
         with:
           app-name: 'texttoimageaigenerator'
           slot-name: 'Production'
-          
+
+      - name: Configure Streamlit to run on Azure Web App
+        run: |
+          mkdir -p ~/.streamlit
+          echo "[server]" > ~/.streamlit/config.toml
+          echo "headless = true" >> ~/.streamlit/config.toml
+          echo "port = \$PORT" >> ~/.streamlit/config.toml
+          echo "enableCORS = false" >> ~/.streamlit/config.toml
+
+      - name: Start Streamlit application
+        run: |
+          source venv/bin/activate
+          streamlit run app.py
