@@ -76,5 +76,5 @@ jobs:
 
       - name: Start Streamlit application
         run: |
-          chmod +x startup.sh
-          ./startup.sh
+          chmod +x deploy.sh
+          ./deploy.sh
