@@ -1,4 +1,4 @@
-name: Build and deploy Python app to Azure Web App - texttoimageaigenerator
+name: Build and deploy Python app to Azure Web App - texttoimagegenerator
 
 on:
   push:
@@ -70,7 +70,7 @@ jobs:
         id: deploy-to-webapp
         uses: azure/webapps-deploy@v2
         with:
-          app-name: 'texttoimageaigenerator'
+          app-name: 'texttoimagegenerator'
           slot-name: 'Production'
           package: '.'
 
