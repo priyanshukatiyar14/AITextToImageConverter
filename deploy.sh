@@ -1,6 +1,4 @@
 #!/bin/bash
-# Install dependencies
-pip install -r requirements.txt
 
 # Configure Streamlit
 mkdir -p ~/.streamlit
