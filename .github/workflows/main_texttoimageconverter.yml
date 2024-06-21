@@ -76,5 +76,6 @@ jobs:
 
       - name: Start Streamlit application
         run: |
+          pip install streamlit
           streamlit run main.py --server.port 8000 --server.enableCORS false
 
